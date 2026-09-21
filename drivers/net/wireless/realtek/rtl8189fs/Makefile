@@ -10,8 +10,8 @@ ccflags-y += -Wno-unused-variable
 #ccflags-y += -Wno-unused-value
 #ccflags-y += -Wno-unused-label
 #ccflags-y += -Wno-unused-parameter
-#ccflags-y += -Wno-unused-function
-#ccflags-y += -Wno-unused
+ccflags-y += -Wno-unused-function
+ccflags-y += -Wno-unused
 #ccflags-y += -Wno-uninitialized
 
 GCC_VER_49 := $(shell echo `$(CC) -dumpversion | cut -f1-2 -d.` \>= 4.9 | bc )
