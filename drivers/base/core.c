@@ -5278,12 +5278,6 @@ struct device *get_dev_from_fwnode(struct fwnode_handle *fwnode)
 }
 EXPORT_SYMBOL_GPL(get_dev_from_fwnode);
 
-struct device *get_dev_from_fwnode(struct fwnode_handle *fwnode)
-{
-	return get_device((fwnode)->dev);
-}
-EXPORT_SYMBOL_GPL(get_dev_from_fwnode);
-
 int device_match_name(struct device *dev, const void *name)
 {
 	return sysfs_streq(dev_name(dev), name);

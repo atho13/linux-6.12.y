@@ -1067,14 +1067,14 @@ static const char *led_propnames[YT8521_MAX_LEDS] = {
 static int yt8521_parse_led_triggers(struct phy_device *phydev, u8 led_index,
 				     const char *propname)
 {
-	struct device_node *np = phydev->mdio.dev.of_node;
+	struct device *dev = &phydev->mdio.dev;
 	struct yt8521_priv *priv = phydev->priv;
 	const char **trigger_names;
 	int count, i, j;
 	u16 val = 0;
 	int ret;
 
-	count = of_property_count_strings(np, propname);
+	count = device_property_string_array_count(dev, propname);
 	if (count <= 0)
 		return 0;
 
@@ -1082,7 +1082,7 @@ static int yt8521_parse_led_triggers(struct phy_device *phydev, u8 led_index,
 	if (!trigger_names)
 		return -ENOMEM;
 
-	ret = of_property_read_string_array(np, propname, trigger_names, count);
+	ret = device_property_read_string_array(dev, propname, trigger_names, count);
 	if (ret < 0) {
 		kfree(trigger_names);
 		return ret;

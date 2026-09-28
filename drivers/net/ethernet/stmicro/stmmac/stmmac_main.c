@@ -4273,7 +4273,7 @@ static netdev_tx_t stmmac_tso_xmit(struct sk_buff *skb, struct net_device *dev)
 	struct stmmac_tx_queue *tx_q;
 	bool set_ic, is_last_segment;
 	u32 pay_len, mss, queue;
-	int i, first_tx, nfrags;
+	int i, first_tx, nfrags, ndesc;
 	u8 proto_hdr_len, hdr;
 	dma_addr_t des;
 
