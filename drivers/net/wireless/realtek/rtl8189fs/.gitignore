@@ -1,0 +1,13 @@
+# Generated files
+*.ko
+*.o
+*.mod.c
+*.order
+*.symvers
+*.cmd
+.tmp_versions/
+*.swp
+*~
+
+# Logs
+*.log

@@ -1,0 +1,11 @@
+rtl8189fs driver for HG680P / sixzuper-labs (Amlogic S905X)
+Kernel: 6.12.105-ophub (Armstrong/ophub build)
+Original source: github.com/maomomo-eth/b860av1.1t-armbian (main branch)
+Compiler required: gcc-14 (kernel built with Arm GNU Toolchain 15.3, system gcc 13.3 lacks -fmin-function-alignment)
+
+Patches applied to os_dep/linux/ioctl_cfg80211.c for kernel 6.12 API:
+1. cfg80211_ch_switch_notify: 6.12 signature = (dev, chandef, link_id) -> 3 args
+2. cfg80211_rtw_change_beacon: param changed from cfg80211_beacon_data* to cfg80211_ap_update* (use info->beacon.head/...)
+3. cfg80211_rtw_set_monitor_channel: added required 'struct net_device *ndev' param for 6.12
+
+Rebuild: sudo bash /home/aisixzuperlabs/wifi-driver/rebuild_wifi.sh
