@@ -4518,8 +4518,7 @@ int amdgpu_device_init(struct amdgpu_device *adev,
 				goto failed;
 			}
 			/* init i2c buses */
-			if (!amdgpu_device_has_dc_support(adev))
-				amdgpu_atombios_i2c_init(adev);
+			amdgpu_i2c_init(adev);
 		}
 	}
 
@@ -4793,14 +4792,12 @@ void amdgpu_device_fini_sw(struct amdgpu_device *adev)
 	amdgpu_reset_fini(adev);
 
 	/* free i2c buses */
-	if (!amdgpu_device_has_dc_support(adev))
-		amdgpu_i2c_fini(adev);
+	amdgpu_i2c_fini(adev);
 
 	if (amdgpu_emu_mode != 1)
 		amdgpu_atombios_fini(adev);
 
-	kfree(adev->bios);
-	adev->bios = NULL;
+	amdgpu_bios_release(adev);
 
 	kfree(adev->fru_info);
 	adev->fru_info = NULL;
@@ -5503,6 +5500,31 @@ int amdgpu_device_pre_asic_reset(struct amdgpu_device *adev,
 
 		/* after all hw jobs are reset, hw fence is meaningless, so force_completion */
 		amdgpu_fence_driver_force_completion(ring, fence);
+	}
+
+	/*
+	 * MES scheduler rings have no drm scheduler, so they are missed by the
+	 * loop above. Realign their polling fence too (one per XCC), otherwise the
+	 * first post-reset submission polls forever on a stale seq. sched.ready is
+	 * only set while the driver owns the ring.
+	 */
+	for (i = 0; i < AMDGPU_MAX_MES_PIPES; i++) {
+		struct amdgpu_ring *mes_ring = &adev->mes.ring[i];
+
+		if (mes_ring->fence_drv.initialized && mes_ring->sched.ready)
+			amdgpu_fence_driver_force_completion(mes_ring, fence);
+	}
+
+	/*
+	 * KIQ rings are polling-fence/no_scheduler like MES, so realign their
+	 * fence too (one ring per XCC), otherwise the first post-reset KIQ
+	 * submission polls forever on a stale seq.
+	 */
+	for (i = 0; i < AMDGPU_MAX_GC_INSTANCES; i++) {
+		struct amdgpu_ring *kiq_ring = &adev->gfx.kiq[i].ring;
+
+		if (kiq_ring->fence_drv.initialized && kiq_ring->sched.ready)
+			amdgpu_fence_driver_force_completion(kiq_ring, fence);
 	}
 
 	amdgpu_fence_driver_isr_toggle(adev, false);
